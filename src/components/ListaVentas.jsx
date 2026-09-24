@@ -1,12 +1,18 @@
 import React from 'react';
 
-function ListaVentas({ ventas = [], cargando, handleEditar, handleEliminar, formatMoneda }) {
+function ListaVentas({
+  ventas = [],
+  cargando,
+  handleEditar,
+  handleEliminar,
+  formatMoneda
+}) {
   return (
     <div className="lista-ventas-container">
       <h2>Lista de Ventas Registradas</h2>
 
       {cargando ? (
-        <p>Cargando ventas...</p>
+        <p className="loading-text">Cargando ventas...</p>
       ) : (
         <table className="tabla-ventas">
           <thead>
@@ -26,21 +32,29 @@ function ListaVentas({ ventas = [], cargando, handleEditar, handleEliminar, form
               ventas.map((venta) => (
                 <tr key={venta.id}>
                   <td>{venta.id}</td>
-                  <td>{venta.estudiante}</td>
-                  <td>{venta.producto}</td>
+                  <td>{venta.estudiante || venta.estudiante_nombre || 'N/A'}</td>
+                  <td>{venta.producto || venta.producto_nombre || 'N/A'}</td>
                   <td>{venta.cantidad}</td>
                   <td>{formatMoneda ? formatMoneda(venta.precio) : venta.precio}</td>
-                  <td>{formatMoneda ? formatMoneda(venta.total) : venta.total}</td>
-                  <td>{new Date(venta.fecha).toLocaleDateString()}</td>
+                  <td>
+                    {formatMoneda
+                      ? formatMoneda(venta.total || venta.precio * venta.cantidad)
+                      : venta.total}
+                  </td>
+                  <td>
+                    {venta.fecha
+                      ? new Date(venta.fecha).toLocaleDateString()
+                      : 'N/A'}
+                  </td>
                   <td className="acciones-cell">
-                    <button 
-                      className="btn-editar" 
+                    <button
+                      className="btn-editar"
                       onClick={() => handleEditar && handleEditar(venta)}
                     >
                       Editar
                     </button>
-                    <button 
-                      className="btn-eliminar" 
+                    <button
+                      className="btn-eliminar"
                       onClick={() => handleEliminar && handleEliminar(venta.id)}
                     >
                       Eliminar

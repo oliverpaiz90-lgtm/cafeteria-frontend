@@ -1,100 +1,154 @@
 import React, { useState, useEffect } from 'react';
-import { api } from '../api';
 
-function FormularioVenta() {
+function FormularioVenta({
+  estudiantes = [],
+  productos = [],
+  onGuardar,
+  ventaAEditar,
+  setVentaAEditar
+}) {
   const [formData, setFormData] = useState({
     estudiante_id: '',
     producto_id: '',
-    cantidad: '',
-    fecha: ''
+    cantidad: 1,
+    fecha: new Date().toISOString().split('T')[0]
   });
 
-  const [estudiantes, setEstudiantes] = useState([]);
-  const [productos, setProductos] = useState([]);
-
   useEffect(() => {
-    api.get('/estudiantes')
-      .then(res => setEstudiantes(res.data))
-      .catch(err => console.error(err));
-
-    api.get('/productos')
-      .then(res => setProductos(res.data))
-      .catch(err => console.error(err));
-  }, []);
+    if (ventaAEditar) {
+      setFormData({
+        estudiante_id: ventaAEditar.estudiante_id || '',
+        producto_id: ventaAEditar.producto_id || '',
+        cantidad: ventaAEditar.cantidad || 1,
+        fecha: ventaAEditar.fecha
+          ? new Date(ventaAEditar.fecha).toISOString().split('T')[0]
+          : new Date().toISOString().split('T')[0]
+      });
+    } else {
+      setFormData({
+        estudiante_id: '',
+        producto_id: '',
+        cantidad: 1,
+        fecha: new Date().toISOString().split('T')[0]
+      });
+    }
+  }, [ventaAEditar]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    api.post('/ventas', formData)
-      .then(res => {
-        alert(res.data.message || 'Venta registrada con éxito');
-        setFormData({ estudiante_id: '', producto_id: '', cantidad: '', fecha: '' });
-      })
-      .catch(err => console.error('Error al registrar venta:', err));
+    if (!formData.estudiante_id || !formData.producto_id || formData.cantidad <= 0) {
+      alert('Por favor complete todos los campos requeridos correctamente.');
+      return;
+    }
+
+    onGuardar({
+      ...formData,
+      estudiante_id: Number(formData.estudiante_id),
+      producto_id: Number(formData.producto_id),
+      cantidad: Number(formData.cantidad)
+    });
+
+    setFormData({
+      estudiante_id: '',
+      producto_id: '',
+      cantidad: 1,
+      fecha: new Date().toISOString().split('T')[0]
+    });
+  };
+
+  const handleCancelar = () => {
+    if (setVentaAEditar) setVentaAEditar(null);
+    setFormData({
+      estudiante_id: '',
+      producto_id: '',
+      cantidad: 1,
+      fecha: new Date().toISOString().split('T')[0]
+    });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="formulario-venta">
-      <h2>Registrar Nueva Venta</h2>
-      
-      <div>
-        <label>Estudiante:</label>
-        <select 
-          name="estudiante_id" 
-          value={formData.estudiante_id} 
-          onChange={handleChange}
-          required
-        >
-          <option value="">Seleccione un estudiante</option>
-          {estudiantes.map(e => (
-            <option key={e.id} value={e.id}>{e.nombre}</option>
-          ))}
-        </select>
-      </div>
+    <div className="formulario-container">
+      <h2>{ventaAEditar ? 'Editar Venta' : 'Registrar Nueva Venta'}</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label>Estudiante:</label>
+          <select
+            name="estudiante_id"
+            value={formData.estudiante_id}
+            onChange={handleChange}
+            required
+          >
+            <option value="">-- Seleccione un estudiante --</option>
+            {Array.isArray(estudiantes) &&
+              estudiantes.map((est) => (
+                <option key={est.id} value={est.id}>
+                  {est.nombre}
+                </option>
+              ))}
+          </select>
+        </div>
 
-      <div>
-        <label>Producto:</label>
-        <select 
-          name="producto_id" 
-          value={formData.producto_id} 
-          onChange={handleChange}
-          required
-        >
-          <option value="">Seleccione un producto</option>
-          {productos.map(p => (
-            <option key={p.id} value={p.id}>{p.nombre} (${p.precio})</option>
-          ))}
-        </select>
-      </div>
+        <div className="form-group">
+          <label>Producto:</label>
+          <select
+            name="producto_id"
+            value={formData.producto_id}
+            onChange={handleChange}
+            required
+          >
+            <option value="">-- Seleccione un producto --</option>
+            {Array.isArray(productos) &&
+              productos.map((prod) => (
+                <option key={prod.id} value={prod.id}>
+                  {prod.nombre} - ${prod.precio}
+                </option>
+              ))}
+          </select>
+        </div>
 
-      <div>
-        <label>Cantidad:</label>
-        <input 
-          type="number" 
-          name="cantidad" 
-          value={formData.cantidad} 
-          onChange={handleChange} 
-          min="1"
-          required 
-        />
-      </div>
+        <div className="form-group">
+          <label>Cantidad:</label>
+          <input
+            type="number"
+            name="cantidad"
+            min="1"
+            value={formData.cantidad}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-      <div>
-        <label>Fecha:</label>
-        <input 
-          type="date" 
-          name="fecha" 
-          value={formData.fecha} 
-          onChange={handleChange} 
-          required 
-        />
-      </div>
+        <div className="form-group">
+          <label>Fecha:</label>
+          <input
+            type="date"
+            name="fecha"
+            value={formData.fecha}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-      <button type="submit">Guardar Venta</button>
-    </form>
+        <div className="form-actions">
+          <button type="submit" className="btn-guardar">
+            {ventaAEditar ? 'Actualizar' : 'Guardar'}
+          </button>
+          {ventaAEditar && (
+            <button type="button" className="btn-cancelar" onClick={handleCancelar}>
+              Cancelar
+            </button>
+          )}
+        </div>
+      </form>
+    </div>
   );
 }
 
