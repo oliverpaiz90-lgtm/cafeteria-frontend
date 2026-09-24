@@ -30,7 +30,7 @@ function FormularioVenta() {
     e.preventDefault();
     api.post('/ventas', formData)
       .then(res => {
-        alert(res.data.message || 'Venta registrada');
+        alert(res.data.message || 'Venta registrada con éxito');
         setFormData({ estudiante_id: '', producto_id: '', cantidad: '', fecha: '' });
       })
       .catch(err => console.error('Error al registrar venta:', err));

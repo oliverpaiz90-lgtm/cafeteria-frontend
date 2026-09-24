@@ -1,46 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { api } from '../api';
-import EditarVenta from './EditarVenta';
+import React from 'react';
 
-function ListaVentas() {
-  const [ventas, setVentas] = useState([]);
-  const [ventaSeleccionada, setVentaSeleccionada] = useState(null);
-  const [cargando, setCargando] = useState(true);
-
-  const cargarVentas = () => {
-    setCargando(true);
-    api.get('/ventas')
-      .then(res => setVentas(res.data))
-      .catch(err => console.error('Error al obtener ventas:', err))
-      .finally(() => setCargando(false));
-  };
-
-  useEffect(() => {
-    cargarVentas();
-  }, []);
-
-  const eliminarVenta = (id) => {
-    if (window.confirm('¿Seguro que deseas eliminar esta venta?')) {
-      api.delete(`/ventas/${id}`)
-        .then(res => {
-          alert(res.data.message || 'Venta eliminada');
-          if (ventaSeleccionada?.id === id) setVentaSeleccionada(null);
-          cargarVentas();
-        })
-        .catch(err => {
-          console.error('Error al eliminar venta:', err);
-          alert('No se pudo eliminar la venta');
-        });
-    }
-  };
-
-  const formatMoneda = (valor) => {
-    return new Number(valor).toLocaleString('es-SV', {
-      style: 'currency',
-      currency: 'USD'
-    });
-  };
-
+function ListaVentas({ ventas, cargando, handleEditar, handleEliminar, formatMoneda }) {
   return (
     <div className="lista-ventas-container">
       <h2>Lista de Ventas Registradas</h2>
@@ -73,14 +33,14 @@ function ListaVentas() {
                 <td>{new Date(venta.fecha).toLocaleDateString()}</td>
                 <td>
                   <button 
-                    onClick={() => setVentaSeleccionada(venta)}
-                    className="btn-editar"
+                    className="btn-editar" 
+                    onClick={() => handleEditar && handleEditar(venta)}
                   >
                     Editar
                   </button>
                   <button 
-                    onClick={() => eliminarVenta(venta.id)}
-                    className="btn-eliminar"
+                    className="btn-eliminar" 
+                    onClick={() => handleEliminar && handleEliminar(venta.id)}
                   >
                     Eliminar
                   </button>
@@ -89,17 +49,6 @@ function ListaVentas() {
             ))}
           </tbody>
         </table>
-      )}
-
-      {ventaSeleccionada && (
-        <EditarVenta
-          venta={ventaSeleccionada}
-          onUpdate={() => {
-            setVentaSeleccionada(null);
-            cargarVentas();
-          }}
-          onCancel={() => setVentaSeleccionada(null)}
-        />
       )}
     </div>
   );
