@@ -3,7 +3,6 @@ import FormularioVenta from './components/FormularioVenta';
 import ListaVentas from './components/ListaVentas';
 import './App.css';
 
-// URL base para la API
 const API_URL = import.meta.env.VITE_API_URL || 'https://vigilant-fortnight-3.onrender.com';
 
 function App() {
@@ -12,41 +11,46 @@ function App() {
   const [productos, setProductos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [ventaAEditar, setVentaAEditar] = useState(null);
+  const [apiPrefix, setApiPrefix] = useState('/api'); // Detecta si las rutas llevan /api o no
 
-  // Cargar datos al montar el componente
   useEffect(() => {
     cargarDatos();
   }, []);
 
+  // Función helper para intentar hacer fetch con o sin /api
+  const fetchConFallback = async (endpoint) => {
+    try {
+      // 1. Intentar con /api
+      let res = await fetch(`${API_URL}/api${endpoint}`);
+      if (res.ok) {
+        setApiPrefix('/api');
+        return await res.json();
+      }
+
+      // 2. Si da 404, intentar sin /api
+      res = await fetch(`${API_URL}${endpoint}`);
+      if (res.ok) {
+        setApiPrefix('');
+        return await res.json();
+      }
+    } catch (error) {
+      console.error(`Error en fetch para ${endpoint}:`, error);
+    }
+    return [];
+  };
+
   const cargarDatos = async () => {
     setCargando(true);
     try {
-      const [resVentas, resEstudiantes, resProductos] = await Promise.all([
-        fetch(`${API_URL}/api/ventas`).catch(() => null),
-        fetch(`${API_URL}/api/estudiantes`).catch(() => null),
-        fetch(`${API_URL}/api/productos`).catch(() => null)
+      const [dataVentas, dataEstudiantes, dataProductos] = await Promise.all([
+        fetchConFallback('/ventas'),
+        fetchConFallback('/estudiantes'),
+        fetchConFallback('/productos')
       ]);
 
-      if (resVentas && resVentas.ok) {
-        const dataVentas = await resVentas.json();
-        setVentas(Array.isArray(dataVentas) ? dataVentas : []);
-      } else {
-        setVentas([]);
-      }
-
-      if (resEstudiantes && resEstudiantes.ok) {
-        const dataEst = await resEstudiantes.json();
-        setEstudiantes(Array.isArray(dataEst) ? dataEst : []);
-      } else {
-        setEstudiantes([]);
-      }
-
-      if (resProductos && resProductos.ok) {
-        const dataProd = await resProductos.json();
-        setProductos(Array.isArray(dataProd) ? dataProd : []);
-      } else {
-        setProductos([]);
-      }
+      setVentas(Array.isArray(dataVentas) ? dataVentas : []);
+      setEstudiantes(Array.isArray(dataEstudiantes) ? dataEstudiantes : []);
+      setProductos(Array.isArray(dataProductos) ? dataProductos : []);
     } catch (error) {
       console.error('Error al cargar datos desde la API:', error);
       setVentas([]);
@@ -59,12 +63,12 @@ function App() {
 
   const handleGuardarVenta = async (ventaData) => {
     try {
-      const url = ventaAEditar
-        ? `${API_URL}/api/ventas/${ventaAEditar.id}`
-        : `${API_URL}/api/ventas`;
+      const endpoint = ventaAEditar
+        ? `${API_URL}${apiPrefix}/ventas/${ventaAEditar.id}`
+        : `${API_URL}${apiPrefix}/ventas`;
       const method = ventaAEditar ? 'PUT' : 'POST';
 
-      const res = await fetch(url, {
+      const res = await fetch(endpoint, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(ventaData)
@@ -88,7 +92,7 @@ function App() {
   const handleEliminar = async (id) => {
     if (!window.confirm('¿Está seguro de eliminar esta venta?')) return;
     try {
-      const res = await fetch(`${API_URL}/api/ventas/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_URL}${apiPrefix}/ventas/${id}`, { method: 'DELETE' });
       if (res.ok) {
         cargarDatos();
       } else {
