@@ -1,160 +1,236 @@
-/* Estilos Globales */
+/* ==========================================
+   VARIABLES DE COLOR Y ESTILOS GLOBALES
+   ========================================== */
 :root {
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-  --bg-color: #f8fafc;
-  --card-bg: #ffffff;
-  --text-main: #1e293b;
-  --text-muted: #64748b;
-  --border-color: #e2e8f0;
-  --danger: #ef4444;
-  --danger-hover: #dc2626;
+  --color-primary: #6b1d2f;        /* Vino principal */
+  --color-primary-dark: #4a121f;   /* Vino oscuro para hover/header */
+  --color-accent: #9e2a4b;         /* Vino claro para detalles */
+  --bg-main: #fcf9f5;              /* Fondo general crema suave */
+  --bg-card: #ffffff;              /* Fondo de tarjetas */
+  --bg-beige: #f4ede2;             /* Beige claro para headers de tabla/secciones */
+  --text-primary: #2c221e;         /* Texto principal café/negro elegante */
+  --text-secondary: #6e5d54;       /* Texto secundario */
+  --border-color: #e5d8ca;         /* Bordes beige sutiles */
+  --shadow-soft: 0 10px 25px -5px rgba(107, 29, 47, 0.08);
+  --radius-lg: 12px;
+  --radius-md: 8px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
 body {
-  margin: 0;
-  padding: 0;
-  background-color: var(--bg-color) !important;
-  color: var(--text-main);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
 }
 
-/* Contenedor Principal (app-shell) */
-.app-shell {
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 0 20px;
+/* ==========================================
+   ESTRUCTURA PRINCIPAL
+   ========================================== */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
 }
 
-.app-header {
+.header {
+  background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary));
+  color: #f7f1eb;
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 2rem;
+  border-bottom: 3px solid #d4af37; /* Detalle dorado sutil */
 }
 
-.app-header h1 {
-  font-size: 2.2rem;
-  color: #0f172a;
-  margin-bottom: 6px;
+.header h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
-.app-header p {
-  color: var(--text-muted);
-  font-size: 1.05rem;
-  margin: 0;
-}
-
-/* Tarjetas / Formularios */
-.formulario-venta,
-.lista-ventas-container,
-.modal-editar {
-  background: var(--card-bg);
-  padding: 24px;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  margin-bottom: 30px;
-  border: 1px solid var(--border-color);
-}
-
-h2, h3 {
-  margin-top: 0;
-  color: #0f172a;
-  border-bottom: 2px solid var(--border-color);
-  padding-bottom: 10px;
-  margin-bottom: 20px;
-}
-
-/* Campos de Formulario */
-.formulario-venta div,
-.modal-editar form > div {
-  margin-bottom: 16px;
+.main-content {
   display: flex;
   flex-direction: column;
+  gap: 2rem;
 }
 
-label {
-  font-weight: 600;
-  font-size: 0.9rem;
-  margin-bottom: 6px;
-  color: #334155;
-}
-
-input[type="text"],
-input[type="number"],
-input[type="date"],
-select {
-  padding: 10px 14px;
+/* ==========================================
+   TARJETAS Y CONTENEDORES
+   ========================================== */
+.formulario-container,
+.lista-ventas-container {
+  background: var(--bg-card);
+  padding: 2rem;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
-  font-size: 0.95rem;
-  outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  background-color: #fff;
+  box-shadow: var(--shadow-soft);
 }
 
-input:focus,
-select:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-}
-
-/* Botones */
-button {
-  background-color: var(--primary);
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  font-size: 0.95rem;
+.formulario-container h2,
+.lista-ventas-container h2 {
+  color: var(--color-primary);
+  font-size: 1.35rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--bg-beige);
   font-weight: 600;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
 }
 
-button:hover {
-  background-color: var(--primary-hover);
+/* ==========================================
+   FORMULARIO
+   ========================================== */
+form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.form-group input,
+.form-group select {
+  padding: 0.7rem 0.9rem;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(107, 29, 47, 0.12);
+  background-color: #ffffff;
+}
+
+.form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+/* ==========================================
+   BOTONES
+   ========================================== */
+button {
+  cursor: pointer;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.btn-guardar {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.btn-guardar:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+}
+
+.btn-cancelar {
+  background-color: var(--bg-beige);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-cancelar:hover {
+  background-color: #e8dccf;
 }
 
 .btn-editar {
-  background-color: #f59e0b;
-  margin-right: 8px;
-  padding: 6px 12px;
+  background-color: var(--bg-beige);
+  color: var(--color-primary);
+  padding: 0.4rem 0.8rem;
   font-size: 0.85rem;
+  border: 1px solid var(--border-color);
+  margin-right: 0.4rem;
 }
 
 .btn-editar:hover {
-  background-color: #d97706;
+  background-color: var(--color-primary);
+  color: #ffffff;
 }
 
 .btn-eliminar {
-  background-color: var(--danger);
-  padding: 6px 12px;
+  background-color: #fdf2f2;
+  color: #9b1c1c;
+  padding: 0.4rem 0.8rem;
   font-size: 0.85rem;
+  border: 1px solid #f8b4b4;
 }
 
 .btn-eliminar:hover {
-  background-color: var(--danger-hover);
+  background-color: #9b1c1c;
+  color: #ffffff;
 }
 
-/* Tablas */
+/* ==========================================
+   TABLA DE VENTAS
+   ========================================== */
 .tabla-ventas {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 15px;
-}
-
-.tabla-ventas th,
-.tabla-ventas td {
-  padding: 12px 14px;
-  text-align: left;
-  border-bottom: 1px solid var(--border-color);
+  margin-top: 1rem;
+  overflow: hidden;
 }
 
 .tabla-ventas th {
-  background-color: #f1f5f9;
-  font-weight: 600;
-  color: #475569;
+  background-color: var(--bg-beige);
+  color: var(--color-primary-dark);
+  font-weight: 700;
+  text-align: left;
+  padding: 0.9rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--border-color);
 }
 
-.tabla-ventas tr:hover {
-  background-color: #f8fafc;
+.tabla-ventas td {
+  padding: 0.9rem;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.tabla-ventas tbody tr:hover {
+  background-color: #fdfbf7;
+}
+
+.acciones-cell {
+  white-space: nowrap;
+}
+
+.loading-text {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 2rem;
+  font-style: italic;
 }
